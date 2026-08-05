@@ -1,3 +1,3 @@
-variable"rgx"{
-    type = any
+variable "rgx" {
+  type = any
 }

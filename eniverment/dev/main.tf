@@ -1,14 +1,14 @@
-module"resource_group"{
-    source = "../../module/azurerm_resource_group"
-    rgx = var.rgs
+module "resource_group" {
+  source = "../../module/azurerm_resource_group"
+  rgx    = var.rgs
 }
 
-module"virtual_network"{
-    source = "../../module/azurerm_virtual_network"
-    vnet = var.vnet
+module "virtual_network" {
+  source = "../../module/azurerm_virtual_network"
+  vnet   = var.vnet
 }
 
-module"subnet"{
-    source = "../../module/azurerm_subnet"
-    snet = var.snet
+module "subnet" {
+  source = "../../module/azurerm_subnet"
+  snet   = var.snet
 }

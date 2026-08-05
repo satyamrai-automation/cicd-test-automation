@@ -1,3 +1,3 @@
-variable"vnet"{
-    type = any
+variable "vnet" {
+  type = any
 }
