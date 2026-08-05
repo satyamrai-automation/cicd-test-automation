@@ -1,3 +1,4 @@
 variable "snet" {
   type = any
+  
 }

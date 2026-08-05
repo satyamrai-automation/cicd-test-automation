@@ -8,6 +8,7 @@ module "virtual_network" {
   vnet   = var.vnet
 }
 
+
 module "subnet" {
   source = "../../module/azurerm_subnet"
   snet   = var.snet

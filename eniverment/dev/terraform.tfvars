@@ -10,7 +10,6 @@ rgs = {
   }
 }
 
-
 vnet = {
   vnet1 = {
     name                = "test-vnet"
