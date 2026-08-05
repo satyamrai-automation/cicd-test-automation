@@ -1,4 +1,3 @@
 variable "rgx" {
   type = any
-  
 }

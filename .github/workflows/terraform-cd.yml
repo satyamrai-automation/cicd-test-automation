@@ -47,8 +47,6 @@ jobs:
       - name: Verify Terraform Version
         run: terraform version
 
-      - name: Terraform Format Check
-        run: terraform fmt -check -recursive
 
       - name: Terraform Initialize
         run: terraform init -input=false

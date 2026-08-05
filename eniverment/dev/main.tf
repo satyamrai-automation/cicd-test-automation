@@ -11,5 +11,5 @@ module "virtual_network" {
 module "subnet" {
   source = "../../module/azurerm_subnet"
   snet   = var.snet
-  
+
 }

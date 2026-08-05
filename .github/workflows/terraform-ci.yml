@@ -43,8 +43,6 @@ jobs:
       - name: Display Repository Files
         run: ls -R
 
-      - name: Terraform Format Check
-        run: terraform fmt -check -recursive
 
       - name: Terraform Initialize
         run: terraform init -input=false

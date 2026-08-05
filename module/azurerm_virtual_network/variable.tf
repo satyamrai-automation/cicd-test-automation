@@ -1,4 +1,4 @@
 variable "vnet" {
   type = any
-  
+
 }
