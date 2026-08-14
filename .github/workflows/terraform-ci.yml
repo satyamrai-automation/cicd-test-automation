@@ -44,6 +44,10 @@ jobs:
         run: ls -R
 
 
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
       - name: Terraform Initialize
         run: terraform init -input=false
 
@@ -57,7 +61,7 @@ jobs:
       #   uses: actions/upload-artifact@v4
       #   with:
       #     name: terraform-plan
-      #     path: environments/dev/tfplan
+      #     path: eniverment/dev/tfplan
 
       - name: Pipeline Completed
         run: echo "Terraform CI Pipeline Completed Successfully!"

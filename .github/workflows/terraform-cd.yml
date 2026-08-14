@@ -48,6 +48,10 @@ jobs:
         run: terraform version
 
 
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
       - name: Terraform Initialize
         run: terraform init -input=false
 
@@ -61,7 +65,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan
-          path: environments/prod/tfplan
+          path: eniverment/prod/tfplan
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
