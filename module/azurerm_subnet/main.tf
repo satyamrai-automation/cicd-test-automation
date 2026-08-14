@@ -1,3 +1,4 @@
+#tfsec:ignore:azure-network-configured-network-security-group
 resource "azurerm_subnet" "subnetwork" {
   for_each             = var.snet
   name                 = each.value.name

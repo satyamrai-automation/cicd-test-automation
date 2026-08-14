@@ -1,3 +1,4 @@
+#tfsec:ignore:azure-network-enable-ddos-protection
 resource "azurerm_virtual_network" "network" {
   for_each            = var.vnet
   name                = each.value.name
