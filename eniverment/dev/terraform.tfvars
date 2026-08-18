@@ -15,7 +15,7 @@ vnet = {
     name                = "test-vnet"
     location            = "centralindia"
     resource_group_name = "lensblue-dev"
-    address_space       = ["10.32.0.0"]
+    address_space       = ["10.32.0.0/16"]
 
   }
 }
@@ -26,21 +26,21 @@ snet = {
     name                 = "frontend-snet"
     virtual_network_name = "test-vnet"
     resource_group_name  = "lensblue-dev"
-    address_prefixes     = ["10.32.1.0"]
+    address_prefixes     = ["10.32.1.0/24"]
 
   }
   snet2 = {
     name                 = "backend-snet"
     virtual_network_name = "test-vnet"
     resource_group_name  = "lensblue-dev"
-    address_prefixes     = ["10.32.2.0"]
+    address_prefixes     = ["10.32.2.0/24"]
 
   }
   snet3 = {
     name                 = "database-snet"
     virtual_network_name = "test-vnet"
     resource_group_name  = "lensblue-dev"
-    address_prefixes     = ["10.32.3.0"]
+    address_prefixes     = ["10.32.3.0/24"]
 
   }
 }
