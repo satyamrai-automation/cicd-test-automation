@@ -18,6 +18,13 @@ vnet = {
     address_space       = ["10.32.0.0/16"]
 
   }
+  vnet2 = {
+    name                = "test-vnet2"
+    location            = "centralindia"
+    resource_group_name = "ProDot-dev"
+    address_space       = ["10.33.0.0/16"]
+
+  }
 }
 
 
