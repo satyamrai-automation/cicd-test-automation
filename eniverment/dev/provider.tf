@@ -6,6 +6,12 @@ terraform {
       version = "4.80.0"
     }
   }
+  backend "azurerm" {
+    resource_group_name  = "a-git"
+    storage_account_name = "storagecicdpipline"
+    container_name       = "tfstate"
+    key                  = "dev.terraform.tfstate"
+  }
 }
 
 provider "azurerm" {
