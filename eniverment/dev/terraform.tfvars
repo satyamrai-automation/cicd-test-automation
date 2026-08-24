@@ -50,4 +50,12 @@ snet = {
     address_prefixes     = ["10.32.3.0/24"]
 
   }
+
+  snet4 = {
+    name                 = "AzureBastionSubnet"
+    virtual_network_name = "Hub-vnet"
+    resource_group_name  = "ProDot-dev"
+    address_prefixes     = ["10.33.1.0/24"]
+
+  }
 }
