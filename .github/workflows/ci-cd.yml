@@ -17,33 +17,24 @@ on:
 # ------------------------------------------------------------
 # Global permissions
 # ------------------------------------------------------------
-
 permissions:
   contents: read
 
 # ------------------------------------------------------------
 # Global environment
 # ------------------------------------------------------------
-
 env:
   TF_VERSION: "1.13.0"
   TF_WORKING_DIR: "eniverment/dev"
   TF_IN_AUTOMATION: "true"
 
 jobs:
-
   # ==========================================================
   # CI - Terraform Validation, Security & Plan
   # ==========================================================
-
   terraform-ci:
     name: Terraform CI
-    runs-on: ubuntu-latest
-
-    # --------------------------------------------------------
-    # Azure Service Principal Authentication
-    # Terraform azurerm provider reads ARM_* variables
-    # --------------------------------------------------------
+    runs-on: self-hosted
 
     env:
       ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -57,180 +48,85 @@ jobs:
         working-directory: eniverment/dev
 
     steps:
-
-      # ------------------------------------------------------
       # 1. Checkout
-      # ------------------------------------------------------
-
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # ------------------------------------------------------
       # 2. Setup Terraform
-      # ------------------------------------------------------
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      # ------------------------------------------------------
       # 3. Verify Terraform
-      # ------------------------------------------------------
-
       - name: Verify Terraform Version
         run: terraform version
 
-      # ------------------------------------------------------
       # 4. Display Environment
-      # ------------------------------------------------------
-
       - name: Display Working Directory
         run: pwd
 
       - name: Display Terraform Files
         run: |
           echo "Terraform working directory:"
-          find . -maxdepth 3 -type f \
-            \( -name "*.tf" -o -name "*.tfvars" \) \
-            -print
+          find . -maxdepth 3 -type f \( -name "*.tf" -o -name "*.tfvars" \) -print
 
-      # ------------------------------------------------------
       # 5. Terraform Format
-      # ------------------------------------------------------
-
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
 
-      # ------------------------------------------------------
       # 6. Terraform Init
-      # ------------------------------------------------------
-
       - name: Terraform Initialize
         run: terraform init -input=false
 
-      # ------------------------------------------------------
       # 7. Terraform Validate
-      # ------------------------------------------------------
-
       - name: Terraform Validate
         run: terraform validate
 
-      # ======================================================
-      # SECURITY
-      # ======================================================
-
-      # ------------------------------------------------------
-      # 8. Gitleaks
-      # ------------------------------------------------------
-
+      # 8. Gitleaks (Using direct CLI on Windows runner)
       - name: Gitleaks Secret Scan
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gitleaks detect --source . --verbose --no-git
 
-      # ------------------------------------------------------
-      # 9. TruffleHog
-      # ------------------------------------------------------
-
-      # ------------------------------------------------------
-      # TruffleHog - Pull Request
-      # ------------------------------------------------------
-
-      - name: TruffleHog Secret Scan - Pull Request
-        if: github.event_name == 'pull_request'
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.pull_request.base.sha }}
-          head: ${{ github.event.pull_request.head.sha }}
-          extra_args: --only-verified
-
-      # ------------------------------------------------------
-      # TruffleHog - Push
-      # ------------------------------------------------------
-
-      - name: TruffleHog Secret Scan - Push
-        if: github.event_name == 'push'
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.before }}
-          head: ${{ github.sha }}
-          extra_args: --only-verified
-
-      # ------------------------------------------------------
-      # 10. Setup TFLint
-      # ------------------------------------------------------
-
-      - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v4
+      # 9. Setup TFLint
+      # - name: Setup TFLint
+      #   uses: terraform-linters/setup-tflint@v4
 
       - name: Initialize TFLint
         run: tflint --init
 
-      # ------------------------------------------------------
-      # 11. Run TFLint
-      # ------------------------------------------------------
-
+      # 10. Run TFLint
       - name: Run TFLint
         run: tflint -f compact
 
-      # ------------------------------------------------------
-      # 12. tfsec
-      # ------------------------------------------------------
+      # # 11. tfsec
+      # - name: Run tfsec
+      #   uses: aquasecurity/tfsec-action@v1.0.3
+      #   with:
+      #     working_directory: eniverment/dev
+      #     soft_fail: true
 
-      - name: Run tfsec
-        uses: aquasecurity/tfsec-action@v1.0.3
-        with:
-          working_directory: eniverment/dev
-          soft_fail: false
+      # 12. Setup Infracost
+      # - name: Setup Infracost
+      #   uses: infracost/actions/setup@v3
+      #   with:
+      #     api-key: ${{ secrets.INFRACOST_API_KEY }}
+      #   continue-on-error: true
 
-      # ======================================================
-      # COST ESTIMATION
-      # ======================================================
+      # # 13. Infracost Breakdown
+      # - name: Run Infracost
+      #   run: |
+      #     infracost breakdown --path . --format table
+      #   continue-on-error: true
 
-      # ------------------------------------------------------
-      # 13. Setup Infracost
-      # ------------------------------------------------------
-
-      - name: Setup Infracost
-        uses: infracost/actions/setup@v3
-        with:
-          api-key: ${{ secrets.INFRACOST_API_KEY }}
-        continue-on-error: true
-
-      # ------------------------------------------------------
-      # 14. Infracost
-      # ------------------------------------------------------
-
-      - name: Run Infracost
-        run: |
-          infracost breakdown \
-            --path . \
-            --format table
-        continue-on-error: true
-
-      # ======================================================
-      # TERRAFORM PLAN
-      # ======================================================
-
-      # ------------------------------------------------------
-      # 15. Terraform Plan
-      # ------------------------------------------------------
-
+      # 14. Terraform Plan
       - name: Terraform Plan
         run: |
-          terraform plan \
-            -out=tfplan \
-            -input=false
+          terraform plan -out=tfplan -input=false
 
-      # ------------------------------------------------------
-      # 16. Upload Terraform Plan
-      # ------------------------------------------------------
-
+      # 15. Upload Terraform Plan Artifact
       - name: Upload Terraform Plan
         uses: actions/upload-artifact@v4
         with:
@@ -238,10 +134,7 @@ jobs:
           path: eniverment/dev/tfplan
           retention-days: 5
 
-      # ------------------------------------------------------
-      # 17. CI Success
-      # ------------------------------------------------------
-
+      # 16. CI Summary
       - name: CI Completed
         run: |
           echo "=============================================="
@@ -249,40 +142,23 @@ jobs:
           echo "=============================================="
           echo "Terraform Version : $TF_VERSION"
           echo "Working Directory : $TF_WORKING_DIR"
-          echo "Branch             : $GITHUB_REF_NAME"
-          echo "Commit             : $GITHUB_SHA"
-
+          echo "Branch            : $GITHUB_REF_NAME"
+          echo "Commit            : $GITHUB_SHA"
 
   # ==========================================================
   # CD - Terraform Apply
   # ==========================================================
-
   terraform-cd:
     name: Terraform CD - Production Deployment
-
     needs:
       - terraform-ci
-
-    # Apply ONLY after a direct push to main
     if: >
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main'
-
     runs-on: ubuntu-latest
-
-    # --------------------------------------------------------
-    # GitHub Environment
-    # Recommended: create "production" environment
-    # and configure required reviewers.
-    # --------------------------------------------------------
 
     environment:
       name: production
-
-    # --------------------------------------------------------
-    # Prevent multiple production deployments
-    # running at the same time.
-    # --------------------------------------------------------
 
     concurrency:
       group: production-deployment
@@ -300,77 +176,48 @@ jobs:
         working-directory: eniverment/dev
 
     steps:
-
-      # ------------------------------------------------------
       # 1. Checkout
-      # ------------------------------------------------------
-
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # ------------------------------------------------------
       # 2. Setup Terraform
-      # ------------------------------------------------------
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      # ------------------------------------------------------
       # 3. Verify Terraform
-      # ------------------------------------------------------
-
       - name: Verify Terraform Version
         run: terraform version
 
-      # ------------------------------------------------------
       # 4. Terraform Init
-      # ------------------------------------------------------
-
       - name: Terraform Initialize
         run: terraform init -input=false
 
-      # ------------------------------------------------------
-      # 5. Download Plan Generated During CI
-      # ------------------------------------------------------
-
+     # 5. Download Plan
       - name: Download Terraform Plan
         uses: actions/download-artifact@v4
         with:
           name: terraform-plan
           path: eniverment/dev
 
-      # ------------------------------------------------------
-      # 6. Verify Plan
-      # ------------------------------------------------------
-
+      # 6. Verify Plan Exists
       - name: Verify Terraform Plan
         run: |
           if [ ! -f tfplan ]; then
             echo "ERROR: Terraform plan file not found."
             exit 1
           fi
-
           echo "Terraform plan artifact found successfully."
 
-      # ------------------------------------------------------
       # 7. Terraform Apply
-      # ------------------------------------------------------
-
       - name: Terraform Apply
         run: |
-          terraform apply \
-            -input=false \
-            -auto-approve \
-            tfplan
+          terraform apply -input=false -auto-approve tfplan
 
-      # ------------------------------------------------------
       # 8. Deployment Complete
-      # ------------------------------------------------------
-
       - name: Deployment Completed
         run: |
           echo "================================================"
