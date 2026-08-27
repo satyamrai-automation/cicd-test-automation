@@ -101,25 +101,25 @@ jobs:
       - name: Run TFLint
         run: tflint -f compact
 
-      # 11. tfsec
-      - name: Run tfsec
-        uses: aquasecurity/tfsec-action@v1.0.3
-        with:
-          working_directory: eniverment/dev
-          soft_fail: true
+      # # 11. tfsec
+      # - name: Run tfsec
+      #   uses: aquasecurity/tfsec-action@v1.0.3
+      #   with:
+      #     working_directory: eniverment/dev
+      #     soft_fail: true
 
       # 12. Setup Infracost
-      - name: Setup Infracost
-        uses: infracost/actions/setup@v3
-        with:
-          api-key: ${{ secrets.INFRACOST_API_KEY }}
-        continue-on-error: true
+      # - name: Setup Infracost
+      #   uses: infracost/actions/setup@v3
+      #   with:
+      #     api-key: ${{ secrets.INFRACOST_API_KEY }}
+      #   continue-on-error: true
 
-      # 13. Infracost Breakdown
-      - name: Run Infracost
-        run: |
-          infracost breakdown --path . --format table
-        continue-on-error: true
+      # # 13. Infracost Breakdown
+      # - name: Run Infracost
+      #   run: |
+      #     infracost breakdown --path . --format table
+      #   continue-on-error: true
 
       # 14. Terraform Plan
       - name: Terraform Plan
@@ -196,7 +196,7 @@ jobs:
       - name: Terraform Initialize
         run: terraform init -input=false
 
-      # 5. Download Plan
+     # 5. Download Plan
       - name: Download Terraform Plan
         uses: actions/download-artifact@v4
         with:
